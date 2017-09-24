@@ -5,8 +5,8 @@ const RegisterForm = () => (
     <h2>Register</h2>
     <form action="/api/register" method="post">
       <div>
-        <label htmlFor="displayName">Name:</label>
-        <input type="text" name="displayName" id="displayName" />
+        <label htmlFor="displayname">Name:</label>
+        <input type="text" name="displayname" id="displayname" />
         <br />
       </div>
 

@@ -18,20 +18,30 @@ const app = express();
 // that the password is correct and then invoke `cb` with a user object, which
 // will be set at `req.user` in route handlers after authentication.
 passport.use(
-  new Strategy((username, password, cb) => {
-    db.users.findByUsername(username, (err, user) => {
-      if (err) {
-        return cb(err);
-      }
-      if (!user) {
-        return cb(null, false);
-      }
-      if (user.password !== password) {
-        return cb(null, false);
-      }
-      return cb(null, user);
-    });
-  })
+  'local-register',
+  new Strategy(
+    {
+      passReqToCallback: true
+    },
+    (req, username, password, cb) => {
+      const dbInstance = req.app.get('db');
+      db.users.registerByUsername(
+        dbInstance,
+        username,
+        password,
+        req.body.displayname,
+        (err, user) => {
+          if (err) {
+            return cb(err);
+          }
+          if (!user) {
+            return cb(null, false);
+          }
+          return cb(null, user);
+        }
+      );
+    }
+  )
 );
 
 // Configure Passport authenticated session persistence.
@@ -45,8 +55,9 @@ passport.serializeUser((user, cb) => {
   cb(null, user.id);
 });
 
-passport.deserializeUser((id, cb) => {
-  db.users.findById(id, (err, user) => {
+passport.deserializeUser((req, id, cb) => {
+  const dbInstance = req.app.get('db');
+  db.users.findById(dbInstance, id, (err, user) => {
     if (err) {
       return cb(err);
     }
@@ -111,6 +122,14 @@ app.get('/auth/current_user', (req, res) => {
   return res.send({});
 });
 
+app.post(
+  '/api/register',
+  passport.authenticate('local-register', {
+    successRedirect: '/',
+    failureRedirect: '/login'
+  })
+);
+
 // client side rendering with react
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'client/build/index.html'));
@@ -118,5 +137,7 @@ app.get('*', (req, res) => {
 
 dbConnection.then((dbInstance) => {
   app.set('db', dbInstance);
-  app.listen(5000);
+  app.listen(5000, () => {
+    console.log('Listening on port 5000');
+  });
 });
