@@ -3,6 +3,10 @@ const passport = require('passport');
 const Strategy = require('passport-local').Strategy;
 const db = require('./db');
 const path = require('path');
+require('dotenv').config();
+const massive = require('massive');
+
+const dbConnection = massive(process.env.POSTGRES_URI);
 
 // Create a new Express application.
 const app = express();
@@ -112,4 +116,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'client/build/index.html'));
 });
 
-app.listen(5000);
+dbConnection.then((dbInstance) => {
+  app.set('db', dbInstance);
+  app.listen(5000);
+});
