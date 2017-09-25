@@ -16,7 +16,7 @@ const ProfilePage = ({ user }) => {
       <br />
       Username: {user.username}
       <br />
-      Name: {user.displayName}
+      Name: {user.displayname}
       <br />
       {user.emails && <div>Email: {user.emails[0].value}</div>}
       <a href="/auth/logout">Log out </a>

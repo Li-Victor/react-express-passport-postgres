@@ -115,7 +115,7 @@ app.get('/auth/current_user', (req, res) => {
     return res.send({
       id: req.user.id,
       username: req.user.username,
-      displayName: req.user.displayName,
+      displayname: req.user.displayname,
       emails: req.user.emails
     });
   }
@@ -123,6 +123,7 @@ app.get('/auth/current_user', (req, res) => {
 });
 
 app.post('/api/register', (req, res, next) => {
+  console.log(req.body);
   passport.authenticate('local-register', (err, user) => {
     if (err) {
       return res.send('Error on local-register');
