@@ -6,13 +6,15 @@ import axios from 'axios';
 
 import { isEmptyObject } from '../utils/emptyObject';
 import RegisterForm from './forms/RegisterForm';
-import { register } from '../actions/userAction';
+import LoginForm from './forms/LoginForm';
+import { loginUser } from '../actions/userAction';
 
 class LoginPage extends React.Component {
   constructor(props) {
     super(props);
-    this.registerSubmit = this.registerSubmit.bind(this);
     this.state = { error: '' };
+    this.registerSubmit = this.registerSubmit.bind(this);
+    this.loginSubmit = this.loginSubmit.bind(this);
   }
 
   registerSubmit(userObj) {
@@ -20,7 +22,18 @@ class LoginPage extends React.Component {
       .post('/api/register', userObj)
       .then(res => res.data)
       .then((user) => {
-        this.props.register(user);
+        this.props.loginUser(user);
+        this.props.history.push('/');
+      })
+      .catch(err => this.setState({ error: err.response.data.error }));
+  }
+
+  loginSubmit(userObj) {
+    axios
+      .post('/auth/login', userObj)
+      .then(res => res.data)
+      .then((user) => {
+        this.props.loginUser(user);
         this.props.history.push('/');
       })
       .catch(err => this.setState({ error: err.response.data.error }));
@@ -34,6 +47,7 @@ class LoginPage extends React.Component {
       return (
         <div>
           {error && <span>{error}</span>}
+          <LoginForm submit={this.loginSubmit} />
           <RegisterForm submit={this.registerSubmit} />
         </div>
       );
@@ -46,7 +60,7 @@ LoginPage.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
-  register: PropTypes.func.isRequired,
+  loginUser: PropTypes.func.isRequired,
   /* eslint-disable */
   user: PropTypes.object.isRequired
 };
@@ -57,4 +71,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { register })(LoginPage);
+export default connect(mapStateToProps, { loginUser })(LoginPage);

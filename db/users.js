@@ -21,3 +21,12 @@ exports.findById = (dbInstace, id, cb) => {
     else cb(new Error(`User ${id} does not exist.`));
   });
 };
+
+exports.findByUsername = (dbInstance, username, cb) => {
+  dbInstance.users.findOne({ username }).then((user) => {
+    if (user) cb(null, user);
+    else {
+      cb(null, null);
+    }
+  });
+};

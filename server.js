@@ -19,29 +19,33 @@ const app = express();
 // will be set at `req.user` in route handlers after authentication.
 passport.use(
   'local-register',
-  new Strategy(
-    {
-      passReqToCallback: true
-    },
-    (req, username, password, cb) => {
-      const dbInstance = req.app.get('db');
-      db.users.registerByUsername(
-        dbInstance,
-        username,
-        password,
-        req.body.displayname,
-        (err, user) => {
-          if (err) {
-            return cb(err);
-          }
-          if (!user) {
-            return cb(null, false);
-          }
-          return cb(null, user);
-        }
-      );
-    }
-  )
+  new Strategy({ passReqToCallback: true }, (req, username, password, cb) => {
+    const dbInstance = req.app.get('db');
+    db.users.registerByUsername(
+      dbInstance,
+      username,
+      password,
+      req.body.displayname,
+      (err, user) => {
+        if (err) return cb(err);
+        if (!user) return cb(null, false);
+        return cb(null, user);
+      }
+    );
+  })
+);
+
+passport.use(
+  'local-login',
+  new Strategy({ passReqToCallback: true }, (req, username, password, cb) => {
+    const dbInstance = req.app.get('db');
+    db.users.findByUsername(dbInstance, username, (err, userObj) => {
+      if (err) return cb(err);
+      if (!userObj) return cb(null, false);
+      if (userObj.password !== password) return cb(null, false);
+      return cb(null, userObj);
+    });
+  })
 );
 
 // Configure Passport authenticated session persistence.
@@ -65,16 +69,8 @@ passport.deserializeUser((req, id, cb) => {
   });
 });
 
-// Configure view engine to render EJS templates.
-// app.set('views', `${__dirname}/views`);
-// app.set('view engine', 'ejs');
-
 app.use(express.static(path.join(__dirname, '/client/build')));
 
-// Use application-level middleware for common functionality, including
-// logging, parsing, and session handling.
-
-// app.use(require('morgan')('combined'));
 app.use(require('cookie-parser')());
 app.use(require('body-parser').json());
 app.use(
@@ -95,13 +91,37 @@ app.use(passport.session());
 
 // Define routes.
 
-app.post(
-  '/auth/login',
-  passport.authenticate('local', { failureRedirect: '/login' }),
-  (req, res) => {
-    res.redirect('/');
-  }
-);
+app.post('/auth/login', (req, res, next) => {
+  passport.authenticate('local-login', (err, user) => {
+    if (err) return res.send('Error on local-login');
+    if (!user) return res.status(400).json({ error: 'Incorrect credentials' });
+    req.logIn(user, (errLogin) => {
+      if (errLogin) {
+        return res.send('login error');
+      }
+      const { id, displayname, username } = user;
+      return res.status(200).json({ id, displayname, username });
+    });
+  })(req, res, next);
+});
+
+app.post('/api/register', (req, res, next) => {
+  passport.authenticate('local-register', (err, user) => {
+    if (err) return res.send('Error on local-register');
+    if (!user) {
+      return res
+        .status(400)
+        .json({ error: 'Username has already been taken. Please pick another username' });
+    }
+    req.logIn(user, (errLogin) => {
+      if (errLogin) {
+        return res.send('login error');
+      }
+      const { id, displayname, username } = user;
+      return res.status(200).json({ id, displayname, username });
+    });
+  })(req, res, next);
+});
 
 app.get('/auth/logout', (req, res) => {
   req.logout();
@@ -120,26 +140,6 @@ app.get('/auth/current_user', (req, res) => {
     });
   }
   return res.send({});
-});
-
-app.post('/api/register', (req, res, next) => {
-  passport.authenticate('local-register', (err, user) => {
-    if (err) {
-      return res.send('Error on local-register');
-    }
-    if (!user) {
-      return res
-        .status(400)
-        .json({ error: 'Username has already been taken. Please pick another username' });
-    }
-    req.logIn(user, (errLogin) => {
-      if (errLogin) {
-        return res.send('login error');
-      }
-      const { id, displayname, username } = user;
-      return res.status(200).json({ id, displayname, username });
-    });
-  })(req, res, next);
 });
 
 // client side rendering with react
