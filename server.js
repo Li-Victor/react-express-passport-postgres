@@ -76,7 +76,7 @@ app.use(express.static(path.join(__dirname, '/client/build')));
 
 // app.use(require('morgan')('combined'));
 app.use(require('cookie-parser')());
-app.use(require('body-parser').urlencoded({ extended: true }));
+app.use(require('body-parser').json());
 app.use(
   require('express-session')({
     secret: 'keyboard cat',
@@ -123,7 +123,6 @@ app.get('/auth/current_user', (req, res) => {
 });
 
 app.post('/api/register', (req, res, next) => {
-  console.log(req.body);
   passport.authenticate('local-register', (err, user) => {
     if (err) {
       return res.send('Error on local-register');
@@ -137,7 +136,8 @@ app.post('/api/register', (req, res, next) => {
       if (errLogin) {
         return res.send('login error');
       }
-      return res.status(200).json({});
+      const { id, displayname, username } = user;
+      return res.status(200).json({ id, displayname, username });
     });
   })(req, res, next);
 });

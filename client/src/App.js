@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { fetchUser } from './actions/userAction';
 
+import { fetchUser } from './actions/userAction';
 import HomePage from './components/HomePage';
 import LoginPage from './components/LoginPage';
 import ProfilePage from './components/ProfilePage';
