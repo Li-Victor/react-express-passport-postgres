@@ -1,9 +1,16 @@
 exports.registerByUsername = (dbInstance, username, password, displayname, cb) => {
-  dbInstance.users.insert({ displayname, username, password }).then((newUser) => {
-    if (newUser) {
-      cb(null, newUser);
+  dbInstance.users.findOne({ username }).then((user) => {
+    // user not found by usersname
+    if (!user) {
+      dbInstance.users.insert({ displayname, username, password }).then((newUser) => {
+        if (newUser) {
+          cb(null, newUser);
+        } else {
+          cb(new Error('Something wrong with inserting with registerByUsername function'));
+        }
+      });
     } else {
-      cb(new Error('Something wrong with inserting with registerByUsername function'));
+      cb(null, null);
     }
   });
 };

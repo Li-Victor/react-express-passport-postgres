@@ -122,13 +122,24 @@ app.get('/auth/current_user', (req, res) => {
   return res.send({});
 });
 
-app.post(
-  '/api/register',
-  passport.authenticate('local-register', {
-    successRedirect: '/',
-    failureRedirect: '/login'
-  })
-);
+app.post('/api/register', (req, res, next) => {
+  passport.authenticate('local-register', (err, user) => {
+    if (err) {
+      return res.send('Error on local-register');
+    }
+    if (!user) {
+      return res
+        .status(400)
+        .json({ error: 'Username has already been taken. Please pick another username' });
+    }
+    req.logIn(user, (errLogin) => {
+      if (errLogin) {
+        return res.send('login error');
+      }
+      return res.status(200).json({});
+    });
+  })(req, res, next);
+});
 
 // client side rendering with react
 app.get('*', (req, res) => {
