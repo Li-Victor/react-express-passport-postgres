@@ -7,7 +7,6 @@ import axios from 'axios';
 import { isEmptyObject } from '../utils/emptyObject';
 import RegisterForm from './forms/RegisterForm';
 import LoginForm from './forms/LoginForm';
-import { loginUser } from '../actions/userAction';
 
 class LoginPage extends React.Component {
   constructor(props) {
@@ -71,4 +70,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps, { loginUser })(LoginPage);
+export default connect(mapStateToProps)(LoginPage);
