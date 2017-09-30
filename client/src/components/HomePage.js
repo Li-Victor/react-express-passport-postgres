@@ -5,28 +5,20 @@ import PropTypes from 'prop-types';
 
 import { isEmptyObject } from '../utils/emptyObject';
 
-class HomePage extends React.Component {
-  renderContent() {
-    const { user } = this.props;
-    if (user === null) return <div>Something has gone terribly wrong</div>;
-    else if (isEmptyObject(user)) {
-      return (
-        <p>
-          Welcome! Please <Link to="/login">log in</Link>
-        </p>
-      );
-    }
+const HomePage = ({ user }) => {
+  if (isEmptyObject(user)) {
     return (
       <p>
-        Hello {user.username}. View your <Link to="/profile">profile</Link>
+        Welcome! Please <Link to="/login">log in</Link>
       </p>
     );
   }
-
-  render() {
-    return <div>{this.renderContent()}</div>;
-  }
-}
+  return (
+    <p>
+      Hello {user.username}. View your <Link to="/profile">profile</Link>
+    </p>
+  );
+};
 
 HomePage.propTypes = {
   /* eslint-disable */
