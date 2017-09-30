@@ -6,8 +6,7 @@ import { Redirect } from 'react-router-dom';
 import { isEmptyObject } from '../utils/emptyObject';
 
 const ProfilePage = ({ user }) => {
-  if (user === null) return <div>Something has gone terribly wrong</div>;
-  else if (isEmptyObject(user)) {
+  if (isEmptyObject(user)) {
     return <Redirect to="/login" />;
   }
   return (
