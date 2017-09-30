@@ -13,7 +13,7 @@ import { fetchUser } from './actions/userAction';
 const store = createStore(authReducer, {}, applyMiddleware(reduxThunk));
 // get current user first, and then render
 axios.get('/auth/current_user').then((res) => {
-  store.dispatch(fetchUser(res));
+  store.dispatch(fetchUser(res.data));
 
   ReactDOM.render(
     <BrowserRouter>

@@ -1,5 +1,5 @@
 {
-  "name": "react-express-passport",
+  "name": "react-express-passport-postgres",
   "version": "1.0.0",
   "main": "server.js",
   "license": "MIT",

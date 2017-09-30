@@ -7,6 +7,7 @@ import axios from 'axios';
 import { isEmptyObject } from '../utils/emptyObject';
 import RegisterForm from './forms/RegisterForm';
 import LoginForm from './forms/LoginForm';
+import { userSuccess } from '../actions/userAction';
 
 class LoginPage extends React.Component {
   constructor(props) {
@@ -21,7 +22,7 @@ class LoginPage extends React.Component {
       .post('/api/register', userObj)
       .then(res => res.data)
       .then((user) => {
-        this.props.loginUser(user);
+        this.props.userSuccess(user);
         this.props.history.push('/');
       })
       .catch(err => this.setState({ error: err.response.data.error }));
@@ -32,7 +33,7 @@ class LoginPage extends React.Component {
       .post('/auth/login', userObj)
       .then(res => res.data)
       .then((user) => {
-        this.props.loginUser(user);
+        this.props.userSuccess(user);
         this.props.history.push('/');
       })
       .catch(err => this.setState({ error: err.response.data.error }));
@@ -59,7 +60,7 @@ LoginPage.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }).isRequired,
-  loginUser: PropTypes.func.isRequired,
+  userSuccess: PropTypes.func.isRequired,
   /* eslint-disable */
   user: PropTypes.object.isRequired
 };
@@ -70,4 +71,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(LoginPage);
+export default connect(mapStateToProps, { userSuccess })(LoginPage);
